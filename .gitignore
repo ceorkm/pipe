@@ -1,0 +1,9 @@
+build/
+.build/
+*.xcodeproj
+DerivedData/
+xcuserdata/
+*.xcuserstate
+.DS_Store
+Scripts/.env
+Scripts/

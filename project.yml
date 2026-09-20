@@ -1,0 +1,123 @@
+# XcodeGen spec. `xcodegen generate` writes Pipe.xcodeproj.
+name: Pipe
+options:
+  bundleIdPrefix: com.rkmlabs
+  deploymentTarget:
+    macOS: "15.0"
+  developmentLanguage: en
+  groupSortPosition: top
+  generateEmptyDirectories: true
+  xcodeVersion: "26.0"
+
+settings:
+  base:
+    SWIFT_VERSION: "5.10"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "4"
+    DEVELOPMENT_TEAM: DN478SNPML
+    CODE_SIGN_STYLE: Automatic
+    ENABLE_HARDENED_RUNTIME: YES
+    OTHER_CODE_SIGN_FLAGS: "--timestamp"
+    DEAD_CODE_STRIPPING: YES
+    SWIFT_STRICT_CONCURRENCY: minimal
+
+packages:
+  PipeCore:
+    path: PipeCore
+
+targets:
+  Pipe:
+    type: application
+    platform: macOS
+    sources:
+      - path: Pipe
+        excludes:
+          - Resources/Flags
+      - path: Pipe/Resources/Flags
+        type: folder
+        buildPhase: resources
+    info:
+      path: Pipe/Resources/Info.plist
+      properties:
+        CFBundleName: Pipe
+        CFBundleDisplayName: Pipe
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSApplicationCategoryType: public.app-category.utilities
+        LSMinimumSystemVersion: $(MACOSX_DEPLOYMENT_TARGET)
+        NSHumanReadableCopyright: "rkm labs ltd"
+        # Required or macOS refuses the extension activation request.
+        NSSystemExtensionUsageDescription: "Pipe needs a network extension to route only the apps you choose through a proxy."
+        ITSAppUsesNonExemptEncryption: false
+    entitlements:
+      path: Pipe/Pipe.entitlements
+      properties:
+        com.apple.security.app-sandbox: false
+        com.apple.developer.system-extension.install: true
+        # Development value. The release script re-signs with app-proxy-provider-systemextension.
+        com.apple.developer.networking.networkextension:
+          - app-proxy-provider
+    dependencies:
+      - package: PipeCore
+      - target: PipeExtension
+        embed: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.rkmlabs.pipe
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ENABLE_APP_SANDBOX: NO
+
+  PipeExtension:
+    type: system-extension
+    platform: macOS
+    sources:
+      - path: PipeExtension
+    info:
+      path: PipeExtension/Info.plist
+      properties:
+        CFBundleName: PipeExtension
+        CFBundleDisplayName: Pipe Network Extension
+        CFBundlePackageType: SYSX
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        # Must be on the extension bundle too (sysextd category property check).
+        NSSystemExtensionUsageDescription: "Pipe needs a network extension to route only the apps you choose through a proxy."
+        NetworkExtension:
+          NEProviderClasses:
+            com.apple.networkextension.app-proxy: $(PRODUCT_MODULE_NAME).TransparentProxyProvider
+    entitlements:
+      path: PipeExtension/PipeExtension.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.network.client: true
+        com.apple.security.network.server: true
+        com.apple.developer.networking.networkextension:
+          - app-proxy-provider
+    dependencies:
+      - package: PipeCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.rkmlabs.pipe.extension
+        PRODUCT_NAME: com.rkmlabs.pipe.extension
+        PRODUCT_MODULE_NAME: PipeExtension
+        SKIP_INSTALL: YES
+        # No get-task-allow on the extension: sysextd rejects it (validation failed).
+        CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO
+
+schemes:
+  Pipe:
+    build:
+      targets:
+        Pipe: all
+        PipeExtension: all
+    run:
+      config: Debug
+    archive:
+      config: Release
+  Pipe-DeveloperID:
+    build:
+      targets:
+        Pipe: all
+        PipeExtension: all
+    run:
+      config: Release
