@@ -1,10 +1,18 @@
-# Pipe
+<p align="center">
+  <img src=".github/icon.png" width="128" alt="Pipe">
+</p>
 
-Route one Mac app through a proxy. Leave everything else alone.
+<h1 align="center">Pipe</h1>
+
+<p align="center">Route one Mac app through a proxy. Leave everything else alone.</p>
 
 You might want Meta AI to come out of a US address while Safari, Mail and everything else keep using your normal connection. Pipe does that. The app you pick doesn't need to support proxies, and nothing about the rest of your Mac changes.
 
-Requires macOS 15 or later.
+<p align="center">
+  <a href="https://github.com/ceorkm/pipe/releases/latest"><b>Download for macOS</b></a>
+</p>
+
+Requires macOS 15 or later. The download is signed and notarized by Apple. Move Pipe to your Applications folder before opening it, since macOS only installs network extensions from there.
 
 ## How it works
 
